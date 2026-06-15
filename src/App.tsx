@@ -221,7 +221,7 @@ function NavBar() {
         .nav-desktop { display: none !important; }
         .nav-mobile-btn { display: block !important; }
         .nav-mobile-menu { display: block; }
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           .nav-desktop { display: flex !important; }
           .nav-mobile-btn { display: none !important; }
           .nav-mobile-menu { display: none !important; }
@@ -939,7 +939,7 @@ function ContatoSection() {
                   Endereço
                 </h4>
                 <p className="font-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-                  Av. Fernando Ferrari, 510, Loja 1 e 2, Jardim da Penha, Vitória, Brazil 29060220
+                  Av. Fernando Ferrari, 510, Loja 1 e 2, Jardim da Penha, Vitória, Brasil, 29060-220
                 </p>
               </div>
             </div>
@@ -1024,7 +1024,7 @@ function ContatoSection() {
               loading="lazy"
               allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
-              src="https://maps.google.com/maps?q=Av.%20Fernando%20Ferrari,%20510,%20Loja%201%20e%202,%20Jardim%20da%20Penha,%20Vit%C3%B3ria,%20Brazil%2029060220&t=&z=16&ie=UTF8&iwloc=&output=embed"
+              src="https://maps.google.com/maps?q=Av.%20Fernando%20Ferrari,%20510,%20Loja%201%20e%202,%20Jardim%20da%20Penha,%20Vit%C3%B3ria,%20Brasil,%2029060-220&t=&z=16&ie=UTF8&iwloc=&output=embed"
             />
           </motion.div>
         </motion.div>
