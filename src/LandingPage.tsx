@@ -74,8 +74,8 @@ const SPACE_IMAGES = [
 // Reusable Lead Form Component
 interface LeadFormProps {
   idSuffix: string
-  formData: { nome: string; email: string; whatsapp: string; objetivo: string }
-  setFormData: React.Dispatch<React.SetStateAction<{ nome: string; email: string; whatsapp: string; objetivo: string }>>
+  formData: { nome: string; email: string; whatsapp: string; objetivo: string; plano: string }
+  setFormData: React.Dispatch<React.SetStateAction<{ nome: string; email: string; whatsapp: string; objetivo: string; plano: string }>>
   status: 'idle' | 'loading' | 'success' | 'error'
   onSubmit: (e: React.FormEvent) => Promise<void>
   errorMessage: string
@@ -108,7 +108,7 @@ function LeadForm({
             Preencha os campos abaixo. Nossa equipe entrará em contato via WhatsApp com prioridade.
           </p>
 
-          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {/* Name Input */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label
@@ -126,7 +126,7 @@ function LeadForm({
                 value={formData.nome}
                 onChange={e => setFormData(prev => ({ ...prev, nome: e.target.value }))}
                 style={{
-                  padding: '14px 18px',
+                  padding: '12px 16px',
                   background: 'rgba(26, 13, 23, 0.55)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: 'var(--radius-md)',
@@ -156,7 +156,7 @@ function LeadForm({
                 value={formData.email}
                 onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 style={{
-                  padding: '14px 18px',
+                  padding: '12px 16px',
                   background: 'rgba(26, 13, 23, 0.55)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: 'var(--radius-md)',
@@ -186,7 +186,7 @@ function LeadForm({
                 value={formData.whatsapp}
                 onChange={handlePhoneChange}
                 style={{
-                  padding: '14px 18px',
+                  padding: '12px 16px',
                   background: 'rgba(26, 13, 23, 0.55)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: 'var(--radius-md)',
@@ -199,21 +199,22 @@ function LeadForm({
               />
             </div>
 
-            {/* Objective / Plan Selector */}
+            {/* Objective Selector */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label
                 htmlFor={`objetivo-${idSuffix}`}
                 className="font-label-caps"
                 style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
               >
-                Selecione seu objetivo ou plano
+                Objetivo Principal *
               </label>
               <select
                 id={`objetivo-${idSuffix}`}
+                required
                 value={formData.objetivo}
                 onChange={e => setFormData(prev => ({ ...prev, objetivo: e.target.value }))}
                 style={{
-                  padding: '14px 18px',
+                  padding: '12px 16px',
                   background: 'rgba(26, 13, 23, 0.85)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: 'var(--radius-md)',
@@ -229,13 +230,50 @@ function LeadForm({
                 }}
                 className="form-select"
               >
-                <option value="" disabled>Selecione uma opção</option>
-                <option value="2x por semana">Plano 2x por semana (R$ 497,00/mês)</option>
-                <option value="3x por semana">Plano 3x por semana (R$ 697,00/mês)</option>
-                <option value="5x por semana">Plano 5x por semana (R$ 997,00/mês)</option>
+                <option value="" disabled>Selecione seu objetivo principal</option>
                 <option value="Emagrecimento">Emagrecimento Saudável</option>
                 <option value="Definicao">Definição e Tonificação</option>
                 <option value="Saude">Ganho de Força e Saúde</option>
+                <option value="Conforto">Treinar com Conforto e Privacidade</option>
+              </select>
+            </div>
+
+            {/* Plan Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label
+                htmlFor={`plano-${idSuffix}`}
+                className="font-label-caps"
+                style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
+              >
+                Plano de Interesse *
+              </label>
+              <select
+                id={`plano-${idSuffix}`}
+                required
+                value={formData.plano}
+                onChange={e => setFormData(prev => ({ ...prev, plano: e.target.value }))}
+                style={{
+                  padding: '12px 16px',
+                  background: 'rgba(26, 13, 23, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: formData.plano ? '#fff' : 'rgba(255,255,255,0.4)',
+                  fontSize: 16,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s var(--ease-out)',
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                }}
+                className="form-select"
+              >
+                <option value="" disabled>Selecione o plano de interesse</option>
+                <option value="2x por semana">Plano 2x por semana (R$ 497,00/mês)</option>
+                <option value="3x por semana">Plano 3x por semana (R$ 697,00/mês)</option>
+                <option value="5x por semana">Plano 5x por semana (R$ 997,00/mês)</option>
+                <option value="Duvida">Quero conversar com a equipe primeiro</option>
               </select>
             </div>
 
@@ -259,7 +297,7 @@ function LeadForm({
               type="submit"
               disabled={status === 'loading'}
               style={{
-                marginTop: 12,
+                marginTop: 8,
                 width: '100%',
                 padding: '16px 24px',
                 background: 'var(--color-brand-lime)',
@@ -387,8 +425,8 @@ function LeadForm({
 }
 
 export default function LandingPage() {
-  const [formData1, setFormData1] = useState({ nome: '', email: '', whatsapp: '', objetivo: '' })
-  const [formData2, setFormData2] = useState({ nome: '', email: '', whatsapp: '', objetivo: '' })
+  const [formData1, setFormData1] = useState({ nome: '', email: '', whatsapp: '', objetivo: '', plano: '' })
+  const [formData2, setFormData2] = useState({ nome: '', email: '', whatsapp: '', objetivo: '', plano: '' })
   
   const [status1, setStatus1] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [status2, setStatus2] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -417,8 +455,8 @@ export default function LandingPage() {
 
   // Scroll to form and auto-select the chosen plan
   const handleSelectPlan = (planValue: string) => {
-    setFormData1(prev => ({ ...prev, objetivo: planValue }))
-    setFormData2(prev => ({ ...prev, objetivo: planValue }))
+    setFormData1(prev => ({ ...prev, plano: planValue }))
+    setFormData2(prev => ({ ...prev, plano: planValue }))
     const inputElement = document.getElementById('nome-top')
     if (inputElement) {
       inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -437,7 +475,7 @@ export default function LandingPage() {
     return async (e: React.FormEvent) => {
       e.preventDefault()
       
-      if (!formData.nome.trim() || !formData.email.trim() || !formData.whatsapp.trim()) {
+      if (!formData.nome.trim() || !formData.email.trim() || !formData.whatsapp.trim() || !formData.objetivo || !formData.plano) {
         setStatus('error')
         setErrorMessage('Por favor, preencha todos os campos obrigatórios.')
         return
@@ -834,7 +872,7 @@ export default function LandingPage() {
                     : {
                         background: 'transparent',
                         color: '#fff',
-                        border: '1px solid rgba(255, 25, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
                       }),
                 }}
                 className={plan.highlight ? 'plan-btn-primary' : 'plan-btn-secondary'}
@@ -850,7 +888,7 @@ export default function LandingPage() {
       <div
         style={{
           position: 'relative',
-          background: '#2e1128', // Plum deep to distinguish section
+          background: '#2e1128',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           padding: '80px var(--space-margin-mobile) 80px',
           zIndex: 1,
