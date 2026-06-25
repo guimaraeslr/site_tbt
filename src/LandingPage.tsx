@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import imgThayComunidade from '../assets/thay_comunidade.jpg'
 import imgBg2 from '../assets/bg2.jpg'
 
+// Space Assets Imports
+import imgBuildingFacade from '../assets/Building_facade_with_signage_202606120902_2.jpeg'
+import imgStoreFacade from '../assets/Gym_and_clothing_store_facade_202606120902_3.jpeg'
+import imgGymEquipment from '../assets/Gym_interior_with_equipment_202606120902_2.jpeg'
+import imgGymMain from '../assets/Gym_interior_with_equipment_202606120902_5.jpeg'
+import imgLockers from '../assets/Gym_interior_with_lockers_202606120902_3.jpeg'
+import imgLounge from '../assets/Modern_lounge_with_sofa_202606120902_2.jpeg'
+import imgKidsArea from '../assets/Gym_with_kids_area_202606120902_2.jpeg'
+
 // Webhook endpoint
 const N8N_WEBHOOK_URL = 'https://airolabs-n8n-webhook.xqkuji.easypanel.host/webhook/leads_tbt'
 
@@ -53,38 +62,364 @@ const PLANS = [
   },
 ]
 
-export default function LandingPage() {
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    whatsapp: '',
-    objetivo: '',
-  })
-  
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [errorMessage, setErrorMessage] = useState('')
+const SPACE_IMAGES = [
+  { img: imgGymMain, title: 'Salão de Treinos', desc: 'Espaço amplo, climatizado e equipado' },
+  { img: imgGymEquipment, title: 'Área de Musculação', desc: 'Biomecânica ajustada para a mulher' },
+  { img: imgLockers, title: 'Vestiários Premium', desc: 'Privacidade e chuveiros aquecidos' },
+  { img: imgLounge, title: 'Lounge Exclusivo', desc: 'Um café para relaxar após o treino' },
+  { img: imgKidsArea, title: 'Espaço Kids', desc: 'Brinquedoteca integrada para os filhos' },
+  { img: imgBuildingFacade, title: 'Fachada Principal', desc: 'Fácil acesso em Jardim da Penha' },
+]
 
-  // Format phone number to (XX) XXXXX-XXXX as they type
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '') // remove non-digits
-    if (value.length > 11) value = value.slice(0, 11) // limit to 11 digits
-    
-    // Apply Brazilian phone mask
-    if (value.length > 6) {
-      value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`
-    } else if (value.length > 2) {
-      value = `(${value.slice(0, 2)}) ${value.slice(2)}`
-    } else if (value.length > 0) {
-      value = `(${value}`
+// Reusable Lead Form Component
+interface LeadFormProps {
+  idSuffix: string
+  formData: { nome: string; email: string; whatsapp: string; objetivo: string }
+  setFormData: React.Dispatch<React.SetStateAction<{ nome: string; email: string; whatsapp: string; objetivo: string }>>
+  status: 'idle' | 'loading' | 'success' | 'error'
+  onSubmit: (e: React.FormEvent) => Promise<void>
+  errorMessage: string
+  handlePhoneChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+function LeadForm({
+  idSuffix,
+  formData,
+  setFormData,
+  status,
+  onSubmit,
+  errorMessage,
+  handlePhoneChange,
+}: LeadFormProps) {
+  return (
+    <AnimatePresence mode="wait">
+      {status !== 'success' ? (
+        <motion.div
+          key={`form-${idSuffix}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h2 className="font-headline-sm" style={{ color: '#fff', marginBottom: 8, fontSize: 22 }}>
+            Inscreva-se na Lista VIP
+          </h2>
+          <p className="font-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 28, fontSize: 14, lineHeight: 1.5 }}>
+            Preencha os campos abaixo. Nossa equipe entrará em contato via WhatsApp com prioridade.
+          </p>
+
+          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Name Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label
+                htmlFor={`nome-${idSuffix}`}
+                className="font-label-caps"
+                style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
+              >
+                Nome Completo *
+              </label>
+              <input
+                id={`nome-${idSuffix}`}
+                type="text"
+                required
+                placeholder="Ex: Amanda Santos"
+                value={formData.nome}
+                onChange={e => setFormData(prev => ({ ...prev, nome: e.target.value }))}
+                style={{
+                  padding: '14px 18px',
+                  background: 'rgba(26, 13, 23, 0.55)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: '#fff',
+                  fontSize: 16,
+                  outline: 'none',
+                  transition: 'all 0.25s var(--ease-out)',
+                }}
+                className="form-input"
+              />
+            </div>
+
+            {/* Email Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label
+                htmlFor={`email-${idSuffix}`}
+                className="font-label-caps"
+                style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
+              >
+                E-mail *
+              </label>
+              <input
+                id={`email-${idSuffix}`}
+                type="email"
+                required
+                placeholder="seuemail@exemplo.com"
+                value={formData.email}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                style={{
+                  padding: '14px 18px',
+                  background: 'rgba(26, 13, 23, 0.55)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: '#fff',
+                  fontSize: 16,
+                  outline: 'none',
+                  transition: 'all 0.25s var(--ease-out)',
+                }}
+                className="form-input"
+              />
+            </div>
+
+            {/* WhatsApp Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label
+                htmlFor={`whatsapp-${idSuffix}`}
+                className="font-label-caps"
+                style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
+              >
+                WhatsApp *
+              </label>
+              <input
+                id={`whatsapp-${idSuffix}`}
+                type="tel"
+                required
+                placeholder="(27) 99999-9999"
+                value={formData.whatsapp}
+                onChange={handlePhoneChange}
+                style={{
+                  padding: '14px 18px',
+                  background: 'rgba(26, 13, 23, 0.55)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: '#fff',
+                  fontSize: 16,
+                  outline: 'none',
+                  transition: 'all 0.25s var(--ease-out)',
+                }}
+                className="form-input"
+              />
+            </div>
+
+            {/* Objective / Plan Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label
+                htmlFor={`objetivo-${idSuffix}`}
+                className="font-label-caps"
+                style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
+              >
+                Selecione seu objetivo ou plano
+              </label>
+              <select
+                id={`objetivo-${idSuffix}`}
+                value={formData.objetivo}
+                onChange={e => setFormData(prev => ({ ...prev, objetivo: e.target.value }))}
+                style={{
+                  padding: '14px 18px',
+                  background: 'rgba(26, 13, 23, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: formData.objetivo ? '#fff' : 'rgba(255,255,255,0.4)',
+                  fontSize: 16,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s var(--ease-out)',
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                }}
+                className="form-select"
+              >
+                <option value="" disabled>Selecione uma opção</option>
+                <option value="2x por semana">Plano 2x por semana (R$ 497,00/mês)</option>
+                <option value="3x por semana">Plano 3x por semana (R$ 697,00/mês)</option>
+                <option value="5x por semana">Plano 5x por semana (R$ 997,00/mês)</option>
+                <option value="Emagrecimento">Emagrecimento Saudável</option>
+                <option value="Definicao">Definição e Tonificação</option>
+                <option value="Saude">Ganho de Força e Saúde</option>
+              </select>
+            </div>
+
+            {errorMessage && (
+              <div
+                style={{
+                  color: '#ff6b6b',
+                  fontSize: 14,
+                  padding: '12px 16px',
+                  background: 'rgba(255, 107, 107, 0.08)',
+                  borderRadius: 'var(--radius-md)',
+                  borderLeft: '4px solid #ff6b6b',
+                  marginTop: 4,
+                }}
+              >
+                {errorMessage}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              style={{
+                marginTop: 12,
+                width: '100%',
+                padding: '16px 24px',
+                background: 'var(--color-brand-lime)',
+                color: 'var(--color-background)',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 700,
+                fontFamily: 'var(--font-label)',
+                fontSize: 12,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 20px rgba(240, 244, 105, 0.3)',
+                transition: 'all 0.25s var(--ease-out)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+              className="submit-btn"
+            >
+              {status === 'loading' ? (
+                <>
+                  <span className="spinner" /> Enviando...
+                </>
+              ) : (
+                <>
+                  Garantir Minha Vaga
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+                </>
+              )}
+            </button>
+          </form>
+        </motion.div>
+      ) : (
+        <motion.div
+          key={`success-${idSuffix}`}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            padding: '20px 0',
+          }}
+        >
+          {/* Glowing Success Badge */}
+          <div
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              background: 'rgba(240, 244, 105, 0.1)',
+              border: '2px solid var(--color-brand-lime)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--color-brand-lime)',
+              marginBottom: 24,
+              boxShadow: '0 0 30px rgba(240, 244, 105, 0.35)',
+              animation: 'pulse-glow 2s infinite',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 40 }}>check_circle</span>
+          </div>
+
+          <h2 className="font-headline-sm" style={{ color: '#fff', marginBottom: 12, fontSize: 24 }}>
+            Inscrição Confirmada!
+          </h2>
+          <p className="font-body-md" style={{ color: 'var(--color-on-surface-variant)', fontSize: 16, marginBottom: 36, maxWidth: 360, lineHeight: 1.6 }}>
+            Olá, <strong style={{ color: '#fff' }}>{formData.nome.split(' ')[0]}</strong>! Seus dados foram salvos com sucesso e nossa equipe entrará em contato para agendar sua aula cortesia.
+          </p>
+
+          {/* WhatsApp Call to Action */}
+          <a
+            href={`https://wa.me/5527997782016?text=Ol%C3%A1%2C%20me%20cadastrei%20na%20lista%20VIP%20da%20landing%20page%20como%20${encodeURIComponent(formData.nome)}%20e%20gostaria%20de%20agendar%20minha%20aula.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '100%',
+              padding: '16px 24px',
+              background: 'var(--color-brand-lime)',
+              color: 'var(--color-background)',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-label)',
+              fontSize: 12,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+              boxShadow: '0 4px 20px rgba(240, 244, 105, 0.3)',
+              transition: 'all 0.25s var(--ease-out)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
+            className="whatsapp-btn"
+          >
+            Falar no WhatsApp
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chat</span>
+          </a>
+
+          {/* Back to main website link */}
+          <a
+            href="/"
+            style={{
+              marginTop: 24,
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.4)',
+              fontFamily: 'var(--font-label)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              transition: 'color 0.2s',
+            }}
+            className="back-btn"
+          >
+            Voltar para o site principal
+          </a>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+export default function LandingPage() {
+  const [formData1, setFormData1] = useState({ nome: '', email: '', whatsapp: '', objetivo: '' })
+  const [formData2, setFormData2] = useState({ nome: '', email: '', whatsapp: '', objetivo: '' })
+  
+  const [status1, setStatus1] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [status2, setStatus2] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  
+  const [errorMessage1, setErrorMessage1] = useState('')
+  const [errorMessage2, setErrorMessage2] = useState('')
+
+  // Formatter for Phone Inputs
+  const makePhoneHandler = (setFormData: React.Dispatch<React.SetStateAction<typeof formData1>>) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      let value = e.target.value.replace(/\D/g, '')
+      if (value.length > 11) value = value.slice(0, 11)
+      if (value.length > 6) {
+        value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`
+      } else if (value.length > 2) {
+        value = `(${value.slice(0, 2)}) ${value.slice(2)}`
+      } else if (value.length > 0) {
+        value = `(${value}`
+      }
+      setFormData(prev => ({ ...prev, whatsapp: value }))
     }
-    
-    setFormData(prev => ({ ...prev, whatsapp: value }))
   }
+
+  const handlePhoneChange1 = makePhoneHandler(setFormData1)
+  const handlePhoneChange2 = makePhoneHandler(setFormData2)
 
   // Scroll to form and auto-select the chosen plan
   const handleSelectPlan = (planValue: string) => {
-    setFormData(prev => ({ ...prev, objetivo: planValue }))
-    const inputElement = document.getElementById('nome')
+    setFormData1(prev => ({ ...prev, objetivo: planValue }))
+    setFormData2(prev => ({ ...prev, objetivo: planValue }))
+    const inputElement = document.getElementById('nome-top')
     if (inputElement) {
       inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
       inputElement.focus()
@@ -93,53 +428,61 @@ export default function LandingPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Basic validation
-    if (!formData.nome.trim() || !formData.email.trim() || !formData.whatsapp.trim()) {
-      setStatus('error')
-      setErrorMessage('Por favor, preencha todos os campos obrigatórios.')
-      return
-    }
-
-    // Phone validation (Brazilian format: (XX) XXXXX-XXXX or (XX) XXXX-XXXX)
-    const rawPhone = formData.whatsapp.replace(/\D/g, '')
-    if (rawPhone.length < 10) {
-      setStatus('error')
-      setErrorMessage('Por favor, insira um número de WhatsApp válido.')
-      return
-    }
-
-    setStatus('loading')
-    setErrorMessage('')
-
-    try {
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          origem: 'landing_page_leads',
-          data_envio: new Date().toISOString(),
-        }),
-      })
-
-      if (response.ok) {
-        setStatus('success')
-      } else {
-        throw new Error('Falha no envio dos dados ao servidor.')
+  // Submission handler generator
+  const makeSubmitHandler = (
+    formData: typeof formData1,
+    setStatus: React.Dispatch<React.SetStateAction<'idle' | 'loading' | 'success' | 'error'>>,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    return async (e: React.FormEvent) => {
+      e.preventDefault()
+      
+      if (!formData.nome.trim() || !formData.email.trim() || !formData.whatsapp.trim()) {
+        setStatus('error')
+        setErrorMessage('Por favor, preencha todos os campos obrigatórios.')
+        return
       }
-    } catch (err: any) {
-      console.error(err)
-      setStatus('error')
-      setErrorMessage(
-        'Infelizmente, ocorreu um erro temporário. Por favor, tente novamente ou clique no link abaixo para nos contatar direto via WhatsApp.'
-      )
+
+      const rawPhone = formData.whatsapp.replace(/\D/g, '')
+      if (rawPhone.length < 10) {
+        setStatus('error')
+        setErrorMessage('Por favor, insira um número de WhatsApp válido.')
+        return
+      }
+
+      setStatus('loading')
+      setErrorMessage('')
+
+      try {
+        const response = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            origem: 'landing_page_leads',
+            data_envio: new Date().toISOString(),
+          }),
+        })
+
+        if (response.ok) {
+          setStatus('success')
+        } else {
+          throw new Error('Falha no envio dos dados.')
+        }
+      } catch (err: any) {
+        console.error(err)
+        setStatus('error')
+        setErrorMessage(
+          'Infelizmente, ocorreu um erro temporário. Por favor, tente novamente ou clique no link abaixo para nos contatar direto via WhatsApp.'
+        )
+      }
     }
   }
+
+  const handleSubmit1 = makeSubmitHandler(formData1, setStatus1, setErrorMessage1)
+  const handleSubmit2 = makeSubmitHandler(formData2, setStatus2, setErrorMessage2)
 
   // Animation variants
   const containerVariants = {
@@ -155,7 +498,7 @@ export default function LandingPage() {
   return (
     <div style={{ background: '#1a0d17', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Top Hero + Form Area */}
+      {/* SECTION 1: Top Hero + Form Area */}
       <div
         style={{
           position: 'relative',
@@ -298,7 +641,7 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* Right Side: Glassmorphic Form Card */}
+          {/* Right Side: Glassmorphic Form Card (Top Form) */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -313,340 +656,20 @@ export default function LandingPage() {
               boxShadow: '0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
             }}
           >
-            <AnimatePresence mode="wait">
-              {status !== 'success' ? (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2 className="font-headline-sm" style={{ color: '#fff', marginBottom: 8, fontSize: 22 }}>
-                    Inscreva-se na Lista VIP
-                  </h2>
-                  <p className="font-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 28, fontSize: 14, lineHeight: 1.5 }}>
-                    Preencha os campos abaixo. Nossa equipe entrará em contato via WhatsApp com prioridade.
-                  </p>
-
-                  <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    {/* Name Input */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <label
-                        htmlFor="nome"
-                        className="font-label-caps"
-                        style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
-                      >
-                        Nome Completo *
-                      </label>
-                      <input
-                        id="nome"
-                        type="text"
-                        required
-                        placeholder="Ex: Amanda Santos"
-                        value={formData.nome}
-                        onChange={e => setFormData(prev => ({ ...prev, nome: e.target.value }))}
-                        style={{
-                          padding: '14px 18px',
-                          background: 'rgba(26, 13, 23, 0.55)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: 'var(--radius-md)',
-                          color: '#fff',
-                          fontSize: 16,
-                          outline: 'none',
-                          transition: 'all 0.25s var(--ease-out)',
-                        }}
-                        className="form-input"
-                      />
-                    </div>
-
-                    {/* Email Input */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <label
-                        htmlFor="email"
-                        className="font-label-caps"
-                        style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
-                      >
-                        E-mail *
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        required
-                        placeholder="seuemail@exemplo.com"
-                        value={formData.email}
-                        onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        style={{
-                          padding: '14px 18px',
-                          background: 'rgba(26, 13, 23, 0.55)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: 'var(--radius-md)',
-                          color: '#fff',
-                          fontSize: 16,
-                          outline: 'none',
-                          transition: 'all 0.25s var(--ease-out)',
-                        }}
-                        className="form-input"
-                      />
-                    </div>
-
-                    {/* WhatsApp Input */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <label
-                        htmlFor="whatsapp"
-                        className="font-label-caps"
-                        style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
-                      >
-                        WhatsApp *
-                      </label>
-                      <input
-                        id="whatsapp"
-                        type="tel"
-                        required
-                        placeholder="(27) 99999-9999"
-                        value={formData.whatsapp}
-                        onChange={handlePhoneChange}
-                        style={{
-                          padding: '14px 18px',
-                          background: 'rgba(26, 13, 23, 0.55)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: 'var(--radius-md)',
-                          color: '#fff',
-                          fontSize: 16,
-                          outline: 'none',
-                          transition: 'all 0.25s var(--ease-out)',
-                        }}
-                        className="form-input"
-                      />
-                    </div>
-
-                    {/* Objective / Plan Selector */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <label
-                        htmlFor="objetivo"
-                        className="font-label-caps"
-                        style={{ color: 'var(--color-on-surface-variant)', fontSize: 10, letterSpacing: '0.12em' }}
-                      >
-                        Selecione seu objetivo ou plano
-                      </label>
-                      <select
-                        id="objetivo"
-                        value={formData.objetivo}
-                        onChange={e => setFormData(prev => ({ ...prev, objetivo: e.target.value }))}
-                        style={{
-                          padding: '14px 18px',
-                          background: 'rgba(26, 13, 23, 0.85)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: 'var(--radius-md)',
-                          color: formData.objetivo ? '#fff' : 'rgba(255,255,255,0.4)',
-                          fontSize: 16,
-                          outline: 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.25s var(--ease-out)',
-                          appearance: 'none',
-                          backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>")`,
-                          backgroundRepeat: 'no-repeat',
-                          backgroundPosition: 'right 12px center',
-                        }}
-                        className="form-select"
-                      >
-                        <option value="" disabled>Selecione uma opção</option>
-                        <option value="2x por semana">Plano 2x por semana (R$ 497,00/mês)</option>
-                        <option value="3x por semana">Plano 3x por semana (R$ 697,00/mês)</option>
-                        <option value="5x por semana">Plano 5x por semana (R$ 997,00/mês)</option>
-                        <option value="Emagrecimento">Emagrecimento Saudável</option>
-                        <option value="Definicao">Definição e Tonificação</option>
-                        <option value="Saude">Ganho de Força e Saúde</option>
-                      </select>
-                    </div>
-
-                    {errorMessage && (
-                      <div
-                        style={{
-                          color: '#ff6b6b',
-                          fontSize: 14,
-                          padding: '12px 16px',
-                          background: 'rgba(255, 107, 107, 0.08)',
-                          borderRadius: 'var(--radius-md)',
-                          borderLeft: '4px solid #ff6b6b',
-                          marginTop: 4,
-                        }}
-                      >
-                        {errorMessage}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={status === 'loading'}
-                      style={{
-                        marginTop: 12,
-                        width: '100%',
-                        padding: '16px 24px',
-                        background: 'var(--color-brand-lime)',
-                        color: 'var(--color-background)',
-                        borderRadius: 'var(--radius-md)',
-                        fontWeight: 700,
-                        fontFamily: 'var(--font-label)',
-                        fontSize: 12,
-                        letterSpacing: '0.15em',
-                        textTransform: 'uppercase',
-                        cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-                        boxShadow: '0 4px 20px rgba(240, 244, 105, 0.3)',
-                        transition: 'all 0.25s var(--ease-out)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                      }}
-                      className="submit-btn"
-                    >
-                      {status === 'loading' ? (
-                        <>
-                          <span className="spinner" /> Enviando...
-                        </>
-                      ) : (
-                        <>
-                          Garantir Minha Vaga
-                          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-                        </>
-                      )}
-                    </button>
-                  </form>
-
-                  <style>{`
-                    .form-input:focus, .form-select:focus {
-                      border-color: var(--color-brand-lime) !important;
-                      box-shadow: 0 0 15px rgba(240, 244, 105, 0.2);
-                    }
-                    .submit-btn:hover:not(:disabled) {
-                      background: #ffffff !important;
-                      box-shadow: 0 8px 30px rgba(240, 244, 105, 0.5) !important;
-                      transform: translateY(-2px);
-                    }
-                    .submit-btn:active:not(:disabled) {
-                      transform: translateY(0);
-                    }
-                    .spinner {
-                      width: 18px;
-                      height: 18px;
-                      border: 2px solid rgba(55, 25, 49, 0.2);
-                      border-top: 2px solid rgba(55, 25, 49, 1);
-                      border-radius: 50%;
-                      animation: spin 0.8s linear infinite;
-                    }
-                    @keyframes spin {
-                      0% { transform: rotate(0deg); }
-                      100% { transform: rotate(360deg); }
-                    }
-                  `}</style>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    padding: '20px 0',
-                  }}
-                >
-                  {/* Glowing Success Badge */}
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      borderRadius: '50%',
-                      background: 'rgba(240, 244, 105, 0.1)',
-                      border: '2px solid var(--color-brand-lime)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--color-brand-lime)',
-                      marginBottom: 24,
-                      boxShadow: '0 0 30px rgba(240, 244, 105, 0.35)',
-                      animation: 'pulse-glow 2s infinite',
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: 40 }}>check_circle</span>
-                  </div>
-
-                  <h2 className="font-headline-sm" style={{ color: '#fff', marginBottom: 12, fontSize: 24 }}>
-                    Inscrição Confirmada!
-                  </h2>
-                  <p className="font-body-md" style={{ color: 'var(--color-on-surface-variant)', fontSize: 16, marginBottom: 36, maxWidth: 360, lineHeight: 1.6 }}>
-                    Olá, <strong style={{ color: '#fff' }}>{formData.nome.split(' ')[0]}</strong>! Seus dados foram salvos com sucesso e nossa equipe entrará em contato para agendar sua aula cortesia.
-                  </p>
-
-                  {/* WhatsApp Call to Action */}
-                  <a
-                    href={`https://wa.me/5527997782016?text=Ol%C3%A1%2C%20me%20cadastrei%20na%20lista%20VIP%20da%20landing%20page%20como%20${encodeURIComponent(formData.nome)}%20e%20gostaria%20de%20agendar%20minha%20aula.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      width: '100%',
-                      padding: '16px 24px',
-                      background: 'var(--color-brand-lime)',
-                      color: 'var(--color-background)',
-                      borderRadius: 'var(--radius-md)',
-                      fontWeight: 700,
-                      fontFamily: 'var(--font-label)',
-                      fontSize: 12,
-                      letterSpacing: '0.15em',
-                      textTransform: 'uppercase',
-                      textAlign: 'center',
-                      boxShadow: '0 4px 20px rgba(240, 244, 105, 0.3)',
-                      transition: 'all 0.25s var(--ease-out)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                    }}
-                    className="whatsapp-btn"
-                  >
-                    Falar no WhatsApp
-                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chat</span>
-                  </a>
-
-                  {/* Back to main website link */}
-                  <a
-                    href="/"
-                    style={{
-                      marginTop: 24,
-                      fontSize: 11,
-                      color: 'rgba(255,255,255,0.4)',
-                      fontFamily: 'var(--font-label)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.15em',
-                      transition: 'color 0.2s',
-                    }}
-                    className="back-btn"
-                  >
-                    Voltar para o site principal
-                  </a>
-
-                  <style>{`
-                    .whatsapp-btn:hover {
-                      background: #ffffff !important;
-                      box-shadow: 0 8px 30px rgba(240, 244, 105, 0.5) !important;
-                      transform: translateY(-2px);
-                    }
-                    .back-btn:hover {
-                      color: var(--color-brand-lime) !important;
-                    }
-                  `}</style>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <LeadForm
+              idSuffix="top"
+              formData={formData1}
+              setFormData={setFormData1}
+              status={status1}
+              onSubmit={handleSubmit1}
+              errorMessage={errorMessage1}
+              handlePhoneChange={handlePhoneChange1}
+            />
           </motion.div>
         </div>
       </div>
 
-      {/* Plans Section */}
+      {/* SECTION 2: Plans Section */}
       <div
         style={{
           position: 'relative',
@@ -811,7 +834,7 @@ export default function LandingPage() {
                     : {
                         background: 'transparent',
                         color: '#fff',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 25, 255, 0.2)',
                       }),
                 }}
                 className={plan.highlight ? 'plan-btn-primary' : 'plan-btn-secondary'}
@@ -821,23 +844,212 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* SECTION 3: Imagens do Espaço (Studio Gallery Grid) */}
+      <div
+        style={{
+          position: 'relative',
+          background: '#2e1128', // Plum deep to distinguish section
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          padding: '80px var(--space-margin-mobile) 80px',
+          zIndex: 1,
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          <span
+            className="font-label-caps"
+            style={{ color: 'var(--color-brand-lime)', letterSpacing: '0.25em', fontSize: 11 }}
+          >
+            Infraestrutura Completa
+          </span>
+          <h2
+            className="font-headline-md"
+            style={{
+              color: '#fff',
+              fontSize: 'clamp(28px, 3vw, 36px)',
+              marginTop: 12,
+              textTransform: 'uppercase',
+            }}
+          >
+            Nosso Espaço
+          </h2>
+          <p
+            className="font-body-md"
+            style={{
+              color: 'var(--color-on-surface-variant)',
+              maxWidth: 580,
+              margin: '16px auto 0',
+              fontSize: 15,
+            }}
+          >
+            Um estúdio amplo, moderno, 100% climatizado e projetado com total privacidade para você treinar à vontade.
+          </p>
+        </div>
+
+        <div
+          style={{
+            maxWidth: 1100,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 24,
+          }}
+        >
+          {SPACE_IMAGES.map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                height: 250,
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+              }}
+              className="space-image-card"
+            >
+              <img
+                src={item.img}
+                alt={item.title}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'transform 0.5s var(--ease-out)',
+                }}
+                className="gallery-image"
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to top, rgba(26, 13, 23, 0.9) 0%, rgba(26, 13, 23, 0.3) 50%, transparent 100%)',
+                  zIndex: 2,
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  zIndex: 3,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}
+              >
+                <h4 className="font-headline-sm" style={{ color: '#fff', fontSize: 16 }}>
+                  {item.title}
+                </h4>
+                <p className="font-body-md" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}>
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
 
         <style>{`
-          .plan-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--color-brand-lime) !important;
-            box-shadow: 0 20px 40px rgba(240, 244, 105, 0.08) !important;
-          }
-          .plan-btn-primary:hover {
-            background: #ffffff !important;
-            box-shadow: 0 6px 20px rgba(240, 244, 105, 0.4) !important;
-          }
-          .plan-btn-secondary:hover {
-            border-color: var(--color-brand-lime) !important;
-            color: var(--color-brand-lime) !important;
-            background: rgba(240, 244, 105, 0.02) !important;
+          .space-image-card:hover .gallery-image {
+            transform: scale(1.06);
           }
         `}</style>
+      </div>
+
+      {/* SECTION 4: Bottom Form Section (Formulário Novamente) */}
+      <div
+        style={{
+          position: 'relative',
+          background: 'rgba(26, 13, 23, 0.98)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          padding: '100px var(--space-margin-mobile) 100px',
+          zIndex: 1,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1100,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 64,
+            alignItems: 'center',
+          }}
+        >
+          {/* Bottom Left Copy */}
+          <div>
+            <span
+              className="font-label-caps"
+              style={{ color: 'var(--color-brand-lime)', letterSpacing: '0.25em', fontSize: 11 }}
+            >
+              Inicie sua Transformação
+            </span>
+            <h2
+              className="font-headline-md"
+              style={{
+                color: '#fff',
+                fontSize: 'clamp(28px, 3vw, 38px)',
+                marginTop: 16,
+                lineHeight: 1.15,
+                textTransform: 'uppercase',
+              }}
+            >
+              Pronta para treinar <br />
+              <span style={{ color: 'var(--color-brand-lime)' }}>do seu jeito?</span>
+            </h2>
+            <p
+              className="font-body-lg"
+              style={{
+                color: 'var(--color-on-surface-variant)',
+                marginTop: 20,
+                fontSize: 16,
+                lineHeight: 1.6,
+              }}
+            >
+              Não adie mais o seu bem-estar. Preencha os seus dados ao lado para garantir sua vaga na lista de espera exclusiva e agendar sua primeira visita.
+            </p>
+            
+            <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-brand-lime)' }}>check_circle</span>
+                <span className="font-body-md" style={{ color: '#fff', fontSize: 14 }}>Apenas 10 alunas por turma</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-brand-lime)' }}>check_circle</span>
+                <span className="font-body-md" style={{ color: '#fff', fontSize: 14 }}>Atendimento 100% focado no público feminino</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-brand-lime)' }}>check_circle</span>
+                <span className="font-body-md" style={{ color: '#fff', fontSize: 14 }}>Jardim da Penha, Vitória (ES)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Right Form Card */}
+          <div
+            style={{
+              background: 'rgba(55, 25, 49, 0.45)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: 'var(--radius-xl)',
+              padding: '48px 36px',
+              boxShadow: '0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <LeadForm
+              idSuffix="bottom"
+              formData={formData2}
+              setFormData={setFormData2}
+              status={status2}
+              onSubmit={handleSubmit2}
+              errorMessage={errorMessage2}
+              handlePhoneChange={handlePhoneChange2}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Simple Footer */}
@@ -869,6 +1081,55 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
+
+      <style>{`
+        .plan-card:hover {
+          transform: translateY(-6px);
+          border-color: var(--color-brand-lime) !important;
+          box-shadow: 0 20px 40px rgba(240, 244, 105, 0.08) !important;
+        }
+        .plan-btn-primary:hover {
+          background: #ffffff !important;
+          box-shadow: 0 6px 20px rgba(240, 244, 105, 0.4) !important;
+        }
+        .plan-btn-secondary:hover {
+          border-color: var(--color-brand-lime) !important;
+          color: var(--color-brand-lime) !important;
+          background: rgba(240, 244, 105, 0.02) !important;
+        }
+        .form-input:focus, .form-select:focus {
+          border-color: var(--color-brand-lime) !important;
+          box-shadow: 0 0 15px rgba(240, 244, 105, 0.2);
+        }
+        .submit-btn:hover:not(:disabled) {
+          background: #ffffff !important;
+          box-shadow: 0 8px 30px rgba(240, 244, 105, 0.5) !important;
+          transform: translateY(-2px);
+        }
+        .submit-btn:active:not(:disabled) {
+          transform: translateY(0);
+        }
+        .whatsapp-btn:hover {
+          background: #ffffff !important;
+          box-shadow: 0 8px 30px rgba(240, 244, 105, 0.5) !important;
+          transform: translateY(-2px);
+        }
+        .back-btn:hover {
+          color: var(--color-brand-lime) !important;
+        }
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(55, 25, 49, 0.2);
+          border-top: 2px solid rgba(55, 25, 49, 1);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }
