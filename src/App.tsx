@@ -14,6 +14,7 @@ import imgKidsArea from '../assets/Gym_with_kids_area_202606120902_2.jpeg'
 import imgKidsRoom from '../assets/Kids_room_with_TV_202606120902_3.jpeg'
 import imgThayComunidade from '../assets/thay_comunidade.jpg'
 import imgBgMetodo from '../assets/bg2.jpg'
+import LandingPage from './LandingPage'
 
 /* ===============================
    Image URLs & Assets Mapping
@@ -1094,13 +1095,31 @@ function Footer() {
    App — Main Component
    =============================== */
 export default function App() {
+  const [route, setRoute] = useState(window.location.pathname)
+
   useEffect(() => {
-    new SmoothScroll('a[href*="#"]', {
-      speed: 800,
-      speedAsDuration: true,
-      offset: 80,
-    })
+    const handlePopState = () => {
+      setRoute(window.location.pathname)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
   }, [])
+
+  useEffect(() => {
+    if (route === '/' || route === '') {
+      new SmoothScroll('a[href*="#"]', {
+        speed: 800,
+        speedAsDuration: true,
+        offset: 80,
+      })
+    }
+  }, [route])
+
+  const isLandingPage = route === '/leads' || route === '/captura' || route.startsWith('/leads/') || route.startsWith('/captura/')
+
+  if (isLandingPage) {
+    return <LandingPage />
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
